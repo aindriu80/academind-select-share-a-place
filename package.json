@@ -21,8 +21,10 @@
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
+    "@types/mapbox-gl": "^2.7.20",
     "axios": "^1.6.7",
     "dotenv": "^16.4.1",
+    "mapbox-gl": "^3.1.2",
     "ts-node": "^10.9.2"
   }
 }

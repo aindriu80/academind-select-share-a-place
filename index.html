@@ -7,14 +7,29 @@
     <title>Understanding TypeScript</title>
     <script src="dist/app.js" defer></script>
     <link rel="stylesheet" src="app.css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 340px;
+        bottom: 0;
+        width: 50%;
+        height: 50%;
+      }
+    </style>
   </head>
   <body>
     <div class="map">
       <p>Please enter an address!</p>
     </div>
-    <form>
-      <input type="text" id="address" />
-      <button type="submit">Search Address</button>
+    <form id="addressForm">
+      <label for="address">Enter Address:</label>
+      <input type="text" id="address" name="address" required />
+      <button type="submit">Search</button>
     </form>
+    <div id="map"></div>
   </body>
 </html>

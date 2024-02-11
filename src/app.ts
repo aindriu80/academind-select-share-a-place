@@ -1,36 +1,40 @@
-// Code goes here!
-import axios from "axios";
-const form = document.querySelector("form")!;
-const addressInput = document.getElementById("address")! as HTMLInputElement;
 import dotenv from "dotenv";
 dotenv.config();
-const API_KEY = process.env.API_KEY;
+import mapboxgl from "mapbox-gl";
 
-type GoogleGeocodingResponse = {
-  results: { geometry: { location: { lat: number; lng: number } } }[];
-  status: "OK" | "ZERO_RESULTS";
-};
-
-function searchAddressHandler(event: Event) {
-  event.preventDefault();
-  const enteredAddress = addressInput.value;
-
-  axios
-    .get<GoogleGeocodingResponse>(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURI(
-        enteredAddress,
-      )}&key=${API_KEY}`,
-    )
-    .then((response) => {
-      if (response.data.status !== "OK") {
-        throw new Error("Could not fetch location!");
-      }
-      const coordinates = response.data.results[0].geometry.location;
-    })
-    .catch((err) => {
-      alert(err.message);
-      console.log(err);
-    });
+// Set Mapbox access token// Set Mapbox access token if it's defined
+if (process.env.MAP_BOX_API_KEY) {
+  mapboxgl.accessToken = process.env.MAP_BOX_API_KEY;
+} else {
+  console.error(
+    "Mapbox API key is not defined. Make sure to set it in your environment variables.",
+  );
 }
 
-form.addEventListener("submit", searchAddressHandler);
+// Create a map instance
+const map = new mapboxgl.Map({
+  container: "map",
+  style: "mapbox://styles/mapbox/streets-v12",
+  center: [-21.92661562, 64.14356426], // Default center
+  zoom: 13,
+});
+
+// Function to geocode the address using Mapbox Geocoding API
+async function geocode(address: string): Promise<{ lng: number; lat: number }> {
+  const response = await fetch(
+    `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxgl.accessToken}`,
+  );
+  const data = await response.json();
+  const [lng, lat] = data.features[0].center;
+  return { lng, lat };
+}
+// Event listener for form submission
+document
+  .getElementById("addressForm")!
+  .addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const addressInput = document.getElementById("address") as HTMLInputElement;
+    const address = addressInput.value;
+    const { lng, lat } = await geocode(address);
+    map.setCenter([lng, lat]);
+  });
